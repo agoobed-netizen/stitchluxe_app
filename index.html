@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StitchLuxe — Bespoke Nigerian Fashion Platform</title>
+
+  <!-- External Libraries -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://js.paystack.co/v1/inline.js"></script>
+
+  <!-- Link Custom Stylesheet -->
+  <link rel="stylesheet" href="style.css" />
+  <link rel="manifest" href="manifest.json" />
+</head>
+<body class="bg-slate-50 text-slate-800 pb-20">
+
+  <!-- HEADER -->
+  <header class="sticky top-0 z-50 bg-white border-b border-slate-200 px-4 py-3 shadow-sm">
+    <div class="max-w-6xl mx-auto flex items-center justify-between">
+      <div className="flex items-center gap-2 cursor-pointer" onclick="switchTab('catalog')">
+        <div class="bg-amber-600 text-white font-black text-xl px-3 py-1 rounded-lg">SL</div>
+        <span class="font-bold text-xl tracking-tight text-slate-900 ml-2">StitchLuxe</span>
+      </div>
+      <span class="text-xs bg-amber-50 text-amber-800 px-3 py-1.5 rounded-full border border-amber-200 font-medium">
+        Multi-Vendor Platform
+      </span>
+    </div>
+  </header>
+
+  <!-- NAVIGATION BAR -->
+  <nav class="bg-slate-900 text-white px-4 py-2 text-sm overflow-x-auto hide-scrollbar sticky top-[57px] z-40">
+    <div class="max-w-6xl mx-auto flex gap-6 whitespace-nowrap">
+      <button onclick="switchTab('catalog')" id="nav-catalog" class="nav-btn py-2 px-1 border-b-2 font-medium border-amber-500 text-amber-400">
+        250+ Fashion Catalog
+      </button>
+      <button onclick="switchTab('tracker')" id="nav-tracker" class="nav-btn py-2 px-1 border-b-2 font-medium border-transparent text-slate-300">
+        Track Fabric Progress
+      </button>
+      <button onclick="switchTab('measurements')" id="nav-measurements" class="nav-btn py-2 px-1 border-b-2 font-medium border-transparent text-slate-300">
+        My Measurements
+      </button>
+      <button onclick="switchTab('apprentice')" id="nav-apprentice" class="nav-btn py-2 px-1 border-b-2 font-medium border-transparent text-slate-300">
+        Apprentice Portal
+      </button>
+      <button onclick="switchTab('vendor')" id="nav-vendor" class="nav-btn py-2 px-1 border-b-2 font-medium border-transparent text-slate-300">
+        Designer Storefront
+      </button>
+    </div>
+  </nav>
+
+  <!-- DYNAMIC VIEW CONTAINER -->
+  <main id="main-content" class="max-w-6xl mx-auto px-4 pt-6">
+    <!-- Content injected dynamically via app.js -->
+  </main>
+
+  <!-- Link Custom JavaScript -->
+  <script src="app.js"></script>
+</body>
+</html>
