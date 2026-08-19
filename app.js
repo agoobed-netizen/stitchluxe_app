@@ -1,476 +1,341 @@
-// --- STITCHLUXE MULTI-VENDOR DATABASE ---
-let VENDORS = [
-  {
-    id: "vendor_tiana",
-    businessName: "Tiana Stitches",
-    owner: "Tiana Dele",
-    bio: "Bespoke Nigerian Couture, Luxury Agbada & Corset Asoebi.",
-    logo: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80",
-    socials: {
-      whatsapp: "2348150338188",
-      instagram: "tianastitches_official",
-      website: "https://tianastitches.com"
-    },
-    acceptingInterns: true,
-    internshipProgram: "6-Month Masterclass in Corsetry & Male Agbada",
-    internshipFee: 250000,
-    paymentDetails: {
-      bankName: "Guaranty Trust Bank (GTB)",
-      accountNumber: "0123456789",
-      accountName: "Tiana Stitches Enterprise",
-      paystackEnabled: true
-    }
-  },
-  {
-    id: "vendor_kaftan",
-    businessName: "Kaftan & Threads Co.",
-    owner: "Ibrahim Musa",
-    bio: "Premium Senegalese Kaftans, Senator Suits & Ready-To-Wear.",
-    logo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80",
-    socials: {
-      whatsapp: "2348012345678",
-      instagram: "kaftan_threads_ng",
-      tiktok: "kaftan_threads"
-    },
-    acceptingInterns: true,
-    internshipProgram: "3-Month Industrial Senator Suit Cutting",
-    internshipFee: 150000,
-    paymentDetails: {
-      bankName: "Zenith Bank",
-      accountNumber: "9876543210",
-      accountName: "Kaftan Threads Ltd",
-      paystackEnabled: false
-    }
-  }
+/* ==========================================
+   STITCHLUXE APPLICATION ENGINE (FULL SCRIPT)
+   ========================================== */
+
+// --- GLOBAL STATE ---
+let activeTab = "catalog";
+let currentRole = "client"; // 'client' or 'seller'
+let loggedInUser = JSON.parse(localStorage.getItem("sl_active_user") || "null");
+let authMode = "login"; // 'login' or 'signup'
+let authSelectedRole = "client"; // 'client' or 'seller'
+
+// Mock Data Store
+let catalogItems = [
+  { id: 101, title: "Royal Agbada Set", category: "Bespoke Native", price: 45000, vendor: "Royal Stitches", img: "https://images.unsplash.com/photo-1593030761757-71fae45fa0e7?w=500&auto=format&fit=crop&q=60" },
+  { id: 102, title: "Luxury Silk Senator Suit", category: "Bespoke Native", price: 38000, vendor: "Luxe Thread Co.", img: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=500&auto=format&fit=crop&q=60" },
+  { id: 103, title: "Hand-Tailored Evening Gown", category: "Women's Bespoke", price: 65000, vendor: "Madame Fashion", img: "https://images.unsplash.com/photo-1566174053879-31528523f8ae?w=500&auto=format&fit=crop&q=60" }
 ];
 
-let CATALOG = [
-  {
-    id: "des_1",
-    vendorId: "vendor_tiana",
-    title: "Royal Crimson Hand-Embroidered Agbada",
-    category: "Agbada",
-    gender: "Men",
-    type: "bespoke",
-    price: 180000,
-    image: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=600&q=80",
-    desc: "Heavy hand-embroidered 3-piece traditional Agbada set made from premium Aso-Oke."
-  },
-  {
-    id: "des_2",
-    vendorId: "vendor_kaftan",
-    title: "Minimalist Executive Senator Suit - Navy",
-    category: "Senator",
-    gender: "Men",
-    type: "bespoke",
-    price: 65000,
-    image: "https://images.unsplash.com/photo-1617137984095-74e4e5e3613f?auto=format&fit=crop&w=600&q=80",
-    desc: "Precision-cut wool blend Senator suit with hidden front zipper."
-  },
-  {
-    id: "des_3",
-    vendorId: "vendor_tiana",
-    title: "Luxury Emerald Corset Asoebi Dress",
-    category: "Corset Asoebi",
-    gender: "Women",
-    type: "bespoke",
-    price: 220000,
-    image: "https://images.unsplash.com/photo-1566174053879-31528523f8ae?auto=format&fit=crop&w=600&q=80",
-    desc: "Structured steel-boned corset with hand-beaded lace embellishments."
-  },
-  // WARDROBE RESALE / PRE-LOVED ITEMS
-  {
-    id: "resale_1",
-    vendorId: "vendor_kaftan",
-    title: "Pre-Loved Vintage Cashmere Kaftan (Size L)",
-    category: "Pre-Loved",
-    gender: "Men",
-    type: "resale",
-    price: 32000,
-    image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=600&q=80",
-    desc: "Gently worn twice for photoshoot. Excellent 9/10 condition."
-  },
-  {
-    id: "resale_2",
-    vendorId: "vendor_tiana",
-    title: "Boutique Sample Sale: Velvet Dinner Jacket",
-    category: "Ready-To-Wear",
-    gender: "Women",
-    type: "resale",
-    price: 45000,
-    image: "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=600&q=80",
-    desc: "Original brand sample sale piece. Size 10 UK."
-  }
+let resaleItems = [
+  { id: 201, title: "Pre-Owned Designer Blazer", size: "L", price: 15000, seller: "Adebayo S.", img: "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=500&auto=format&fit=crop&q=60" },
+  { id: 202, title: "Vintage Ankara Corset Top", size: "M", price: 8000, seller: "Chioma K.", img: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=500&auto=format&fit=crop&q=60" }
 ];
 
-// MOCK ORDERS FOR LIVE TRACKER
-let ORDERS = [
-  {
-    orderId: "SL-8842",
-    clientName: "David O.",
-    vendorId: "vendor_tiana",
-    itemTitle: "Royal Crimson Agbada Set",
-    currentStage: 3, // 1 to 5
-    stages: ["Fabric Inspection", "Pattern Drafting", "Sewing & Assembly", "Fitting & QC", "Ready for Pickup"]
-  }
+let vendors = [
+  { id: 301, name: "Royal Stitches", specialty: "Men's Native & Agbada", rating: "4.9 ★", location: "Lagos, NG" },
+  { id: 302, name: "Luxe Thread Co.", specialty: "Corporate & Senator Suits", rating: "4.8 ★", location: "Abuja, NG" }
 ];
 
-// LOCAL STORAGE STATE
-let currentRole = "client"; // "client" or "vendor"
-let userMeasurements = JSON.parse(localStorage.getItem("sl_measurements") || "{}");
-let internshipApps = JSON.parse(localStorage.getItem("sl_internships") || "[]");
+let measurements = JSON.parse(localStorage.getItem("sl_measurements") || "{}");
 
-// --- NAVIGATION LOGIC ---
-function switchTab(tabName) {
+// --- 1. MANDATORY AUTHENTICATION ENGINE ---
+function initAuthGuard() {
+  const authScreen = document.getElementById("auth-screen");
+  const appWorkspace = document.getElementById("app-workspace");
+  const userName = document.getElementById("user-display-name");
+
+  if (loggedInUser) {
+    if (authScreen) authScreen.classList.add("hidden");
+    if (appWorkspace) appWorkspace.classList.remove("hidden");
+    if (userName) userName.innerText = loggedInUser.name.split(" ")[0] + ` (${loggedInUser.role})`;
+    switchTab(activeTab);
+  } else {
+    if (authScreen) authScreen.classList.remove("hidden");
+    if (appWorkspace) appWorkspace.classList.add("hidden");
+  }
+}
+
+function setAuthMode(mode) {
+  authMode = mode;
+  const loginBtn = document.getElementById("mode-btn-login");
+  const signupBtn = document.getElementById("mode-btn-signup");
+  const fullnameGroup = document.getElementById("fullname-group");
+  const submitBtn = document.getElementById("auth-submit-btn");
+
+  if (mode === "signup") {
+    signupBtn.className = "flex-1 py-2 rounded-lg bg-white text-slate-900 shadow-sm";
+    loginBtn.className = "flex-1 py-2 rounded-lg text-slate-500";
+    if (fullnameGroup) fullnameGroup.classList.remove("hidden");
+    if (submitBtn) submitBtn.innerText = "Create Account & Access App";
+  } else {
+    loginBtn.className = "flex-1 py-2 rounded-lg bg-white text-slate-900 shadow-sm";
+    signupBtn.className = "flex-1 py-2 rounded-lg text-slate-500";
+    if (fullnameGroup) fullnameGroup.classList.add("hidden");
+    if (submitBtn) submitBtn.innerText = "Sign In";
+  }
+}
+
+function switchAuthRole(role) {
+  authSelectedRole = role;
+  const clientBtn = document.getElementById("auth-tab-client");
+  const sellerBtn = document.getElementById("auth-tab-seller");
+  const bizGroup = document.getElementById("seller-business-name-group");
+
+  if (role === "client") {
+    clientBtn.className = "flex-1 py-2 rounded-lg bg-slate-800 text-white shadow-sm";
+    sellerBtn.className = "flex-1 py-2 rounded-lg text-slate-500";
+    if (bizGroup) bizGroup.classList.add("hidden");
+  } else {
+    sellerBtn.className = "flex-1 py-2 rounded-lg bg-slate-800 text-white shadow-sm";
+    clientBtn.className = "flex-1 py-2 rounded-lg text-slate-500";
+    if (bizGroup) bizGroup.classList.remove("hidden");
+  }
+}
+
+function handleAuthSubmit(e) {
+  e.preventDefault();
+  const contact = document.getElementById("auth-contact").value;
+  const fullnameInput = document.getElementById("auth-fullname");
+  const name = (fullnameInput && fullnameInput.value) ? fullnameInput.value : contact.split("@")[0];
+  const businessInput = document.getElementById("auth-business");
+  const business = businessInput ? businessInput.value : "";
+
+  loggedInUser = {
+    id: "user_" + Date.now(),
+    name: name,
+    contact: contact,
+    role: authSelectedRole,
+    businessName: authSelectedRole === "seller" ? business : null
+  };
+
+  localStorage.setItem("sl_active_user", JSON.stringify(loggedInUser));
+  initAuthGuard();
+}
+
+function handleGoogleAuth() {
+  loggedInUser = {
+    id: "user_google_" + Date.now(),
+    name: "Google User",
+    contact: "user@gmail.com",
+    role: "client",
+    businessName: null
+  };
+  localStorage.setItem("sl_active_user", JSON.stringify(loggedInUser));
+  initAuthGuard();
+}
+
+function logoutUser() {
+  localStorage.removeItem("sl_active_user");
+  loggedInUser = null;
+  initAuthGuard();
+}
+
+// --- 2. TAB ROUTING & NAVIGATION ---
+function switchTab(tab) {
+  activeTab = tab;
+  
+  // Highlight active nav button
+  document.querySelectorAll(".nav-btn").forEach(btn => {
+    btn.className = "nav-btn py-1.5 px-3 rounded-lg font-medium text-slate-300 hover:text-white";
+  });
+  
+  const currentNav = document.getElementById(`nav-${tab}`);
+  if (currentNav) {
+    currentNav.className = "nav-btn py-1.5 px-3 rounded-lg font-medium bg-amber-500 text-slate-900";
+  }
+
   const container = document.getElementById("main-content");
   if (!container) return;
 
-  document.querySelectorAll(".nav-btn").forEach(btn => {
-    btn.classList.remove("bg-amber-500", "text-slate-900");
-    btn.classList.add("text-slate-300");
-  });
-  
-  const activeBtn = document.getElementById(`nav-${tabName}`);
-  if (activeBtn) {
-    activeBtn.classList.remove("text-slate-300");
-    activeBtn.classList.add("bg-amber-500", "text-slate-900");
-  }
-
-  if (tabName === "catalog") renderCatalog(container, "bespoke");
-  if (tabName === "resale") renderCatalog(container, "resale");
-  if (tabName === "sellers") renderSellers(container);
-  if (tabName === "internship") renderInternshipPortal(container);
-  if (tabName === "tracker") renderTracker(container);
-  if (tabName === "measurements") renderMeasurements(container);
+  if (tab === "catalog") renderCatalog(container);
+  else if (tab === "resale") renderResale(container);
+  else if (tab === "sellers") renderSellers(container);
+  else if (tab === "internship") renderInternship(container);
+  else if (tab === "tracker") renderTracker(container);
+  else if (tab === "measurements") renderMeasurements(container);
 }
 
-// --- 1. BESPOKE CATALOG & WARDROBE RESALE VIEWS ---
-function renderCatalog(container, viewType) {
-  const items = CATALOG.filter(item => viewType === "resale" ? item.type === "resale" : item.type !== "resale");
-  
-  container.innerHTML = `
-    <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-      <div>
-        <h1 class="text-2xl font-bold text-slate-900">${viewType === "resale" ? "Wardrobe Resale & Closet Clearance" : "Bespoke & RTW Showcase"}</h1>
-        <p class="text-slate-500 text-sm">${viewType === "resale" ? "Buy pre-loved luxury pieces, vintage items & sample sales directly." : "Browse 250+ bespoke styles directly from independent Nigerian fashion houses."}</p>
-      </div>
+// --- 3. VIEW RENDERERS ---
 
-      <!-- SEARCH & FILTER BAR -->
-      <div class="flex flex-wrap gap-2">
-        <input type="text" id="catalog-search" oninput="filterCatalog('${viewType}')" placeholder="Search styles..." class="border border-slate-300 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-amber-500" />
-        <select id="category-filter" onchange="filterCatalog('${viewType}')" class="border border-slate-300 rounded-lg px-3 py-2 text-xs bg-white">
-          <option value="ALL">All Categories</option>
-          <option value="Agbada">Agbada</option>
-          <option value="Senator">Senator</option>
-          <option value="Corset Asoebi">Corset Asoebi</option>
-          <option value="Ready-To-Wear">Ready-To-Wear</option>
-          <option value="Pre-Loved">Pre-Loved</option>
-        </select>
-      </div>
-    </div>
-
-    <div id="catalog-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-      ${renderCatalogItems(items)}
-    </div>
-  `;
-}
-
-function renderCatalogItems(items) {
-  if (items.length === 0) {
-    return `<div class="col-span-full text-center py-12 text-slate-400">No garments match your filter criteria.</div>`;
-  }
-
-  return items.map(item => {
-    const vendor = VENDORS.find(v => v.id === item.vendorId);
-    return `
-      <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm flex flex-col justify-between hover:shadow-md transition">
+// Bespoke Catalog with Pinterest Banner
+function renderCatalog(container) {
+  let html = `
+    <!-- PINTEREST INSPIRATION BANNER -->
+    <div class="bg-gradient-to-r from-rose-600 to-red-700 text-white p-5 rounded-2xl mb-6 shadow-lg flex flex-col md:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-4">
+        <div class="w-12 h-12 bg-white text-rose-600 rounded-full flex items-center justify-center text-2xl font-bold shrink-0 shadow">
+          <i class="fa-brands fa-pinterest"></i>
+        </div>
         <div>
-          <div class="relative">
-            <img src="${item.image}" class="w-full h-56 object-cover" />
-            <span class="absolute top-3 right-3 text-[10px] font-bold px-2.5 py-1 rounded-full ${item.type === 'resale' ? 'bg-purple-600 text-white' : 'bg-slate-900/80 backdrop-blur text-amber-400'}">
-              ${item.category}
-            </span>
-          </div>
-          <div class="p-4">
-            <span class="text-xs text-amber-600 font-bold block">${vendor ? vendor.businessName : 'Verified Seller'}</span>
-            <h3 class="font-bold text-slate-900 mt-1 text-base leading-snug">${item.title}</h3>
-            <p class="text-xs text-slate-500 mt-1">${item.desc}</p>
-            <p class="font-extrabold text-xl text-slate-900 mt-3">₦${item.price.toLocaleString()}</p>
-          </div>
-        </div>
-
-        <div class="p-4 pt-0 border-t border-slate-100 mt-2 flex gap-2">
-          <button onclick="openPaymentModal('${item.id}')" class="flex-1 bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold py-2.5 rounded-xl text-xs transition">
-            Buy / Order
-          </button>
-          <a href="https://wa.me/${vendor ? vendor.socials.whatsapp : ''}?text=Hello%20${encodeURIComponent(vendor.businessName)},%20I%20am%20interested%20in%20${encodeURIComponent(item.title)}." 
-             target="_blank" class="px-3 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold flex items-center justify-center">
-            <i class="fa-brands fa-whatsapp text-sm"></i>
-          </a>
+          <h3 class="font-bold text-base">Looking for Tailoring & Outfit Inspiration?</h3>
+          <p class="text-xs text-rose-100">Explore millions of trending clothing styles, native wear, and dress designs on Pinterest.</p>
         </div>
       </div>
-    `;
-  }).join('');
-}
-
-function filterCatalog(viewType) {
-  const search = document.getElementById("catalog-search").value.toLowerCase();
-  const category = document.getElementById("category-filter").value;
-
-  const filtered = CATALOG.filter(item => {
-    const isCorrectType = viewType === "resale" ? item.type === "resale" : item.type !== "resale";
-    const matchesSearch = item.title.toLowerCase().includes(search) || item.desc.toLowerCase().includes(search);
-    const matchesCategory = category === "ALL" || item.category === category;
-    return isCorrectType && matchesSearch && matchesCategory;
-  });
-
-  document.getElementById("catalog-grid").innerHTML = renderCatalogItems(filtered);
-}
-
-// --- 2. MULTI-VENDOR PROFILES & SOCIAL HUB ---
-function renderSellers(container) {
-  container.innerHTML = `
-    <div class="mb-6">
-      <h1 class="text-2xl font-bold text-slate-900">Verified Designers & Wardrobe Sellers</h1>
-      <p class="text-slate-500 text-sm">Direct settlement channels, social portfolios, and training hubs.</p>
+      <a href="https://www.pinterest.com/search/pins/?q=african%20native%20sewing%20designs%20fashion%20styles" target="_blank" rel="noopener noreferrer" class="bg-white text-rose-700 hover:bg-rose-50 font-bold text-xs px-4 py-2.5 rounded-xl whitespace-nowrap transition shadow flex items-center gap-2">
+        <i class="fa-brands fa-pinterest"></i> Explore Design Trends <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+      </a>
     </div>
 
-    <div class="space-y-4">
-      ${VENDORS.map(v => `
-        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-          <div class="flex items-center gap-4">
-            <img src="${v.logo}" class="w-16 h-16 rounded-full object-cover border-2 border-amber-500" />
-            <div>
-              <div class="flex items-center gap-2">
-                <h3 class="font-bold text-slate-900 text-lg">${v.businessName}</h3>
-                <span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full">Verified Store</span>
-              </div>
-              <p class="text-xs text-slate-500 mt-1">${v.bio}</p>
-              
-              <!-- 3 MULTI-SOCIAL MEDIA LINKS -->
-              <div class="flex gap-3 mt-3">
-                ${v.socials.whatsapp ? `
-                  <a href="https://wa.me/${v.socials.whatsapp}" target="_blank" class="text-xs bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-lg border border-emerald-200 font-bold flex items-center gap-1">
-                    <i class="fa-brands fa-whatsapp"></i> WhatsApp
-                  </a>` : ''}
-                ${v.socials.instagram ? `
-                  <a href="https://instagram.com/${v.socials.instagram}" target="_blank" class="text-xs bg-pink-50 text-pink-700 px-2.5 py-1 rounded-lg border border-pink-200 font-bold flex items-center gap-1">
-                    <i class="fa-brands fa-instagram"></i> Instagram
-                  </a>` : ''}
-                ${v.socials.website ? `
-                  <a href="${v.socials.website}" target="_blank" class="text-xs bg-slate-100 text-slate-700 px-2.5 py-1 rounded-lg border border-slate-200 font-bold flex items-center gap-1">
-                    <i class="fa-solid fa-globe"></i> Website
-                  </a>` : ''}
-              </div>
-            </div>
-          </div>
+    <!-- CATALOG ITEMS GRID -->
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-xl font-bold text-slate-900">Bespoke Tailoring Catalog</h2>
+      <span class="text-xs text-slate-500">${catalogItems.length} Designs Available</span>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+  `;
 
-          <div class="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
-            <button onclick="switchTab('internship')" class="px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl">
-              Apply to Apprentice
+  catalogItems.forEach(item => {
+    html += `
+      <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition">
+        <img src="${item.img}" class="w-full h-48 object-cover" alt="${item.title}"/>
+        <div class="p-4">
+          <span class="text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-md uppercase">${item.category}</span>
+          <h3 class="font-bold text-slate-900 text-base mt-1">${item.title}</h3>
+          <p class="text-xs text-slate-500">Tailored by: ${item.vendor}</p>
+          <div class="flex justify-between items-center mt-4">
+            <span class="font-black text-slate-900 text-lg">₦${item.price.toLocaleString()}</span>
+            <button onclick="openPaymentModal('${item.title}', ${item.price})" class="bg-slate-900 text-amber-400 font-bold text-xs px-3 py-2 rounded-xl hover:bg-slate-800 transition">
+              Order Bespoke
             </button>
           </div>
         </div>
-      `).join('')}
-    </div>
-  `;
+      </div>
+    `;
+  });
+
+  html += `</div>`;
+  container.innerHTML = html;
 }
 
-// --- 3. APPRENTICE & INTERNSHIP ACADEMY PORTAL ---
-function renderInternshipPortal(container) {
-  container.innerHTML = `
-    <div class="max-w-3xl mx-auto">
-      <div class="bg-slate-900 text-white p-6 rounded-2xl mb-6 shadow-md">
-        <h1 class="text-2xl font-bold">StitchLuxe Apprentice Academy</h1>
-        <p class="text-slate-300 text-sm mt-1">Enroll in structured mentorship programs directly under top Nigerian bespoke master tailors.</p>
-      </div>
-
-      <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm mb-8">
-        <h2 class="text-lg font-bold text-slate-900 mb-4">Submit Training Application</h2>
-        <form onsubmit="handleInternshipSubmit(event)" class="space-y-4">
+// Resale Marketplace
+function renderResale(container) {
+  let html = `
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-xl font-bold text-slate-900">Wardrobe Resale Hub</h2>
+      <button onclick="alert('Sell item feature: Upload your outfit photos in your Vendor Portal')" class="bg-amber-500 text-slate-900 text-xs font-bold px-3 py-1.5 rounded-lg">+ List Pre-Owned Item</button>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+  `;
+  resaleItems.forEach(item => {
+    html += `
+      <div class="bg-white p-4 rounded-2xl border border-slate-200 flex gap-4 shadow-sm">
+        <img src="${item.img}" class="w-28 h-28 object-cover rounded-xl shrink-0" alt="${item.title}"/>
+        <div class="flex-1 flex flex-col justify-between">
           <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">Select Fashion House / Mentor *</label>
-            <select id="intern-vendor" required class="w-full border border-slate-300 rounded-xl p-3 text-xs bg-white">
-              <option value="">-- Choose Fashion House --</option>
-              ${VENDORS.filter(v => v.acceptingInterns).map(v => `
-                <option value="${v.id}">${v.businessName} — (${v.internshipProgram} - ₦${v.internshipFee.toLocaleString()})</option>
-              `).join('')}
-            </select>
+            <span class="text-[10px] font-bold bg-slate-100 text-slate-600 px-2 py-0.5 rounded">Size: ${item.size}</span>
+            <h3 class="font-bold text-slate-900 text-sm mt-1">${item.title}</h3>
+            <p class="text-xs text-slate-500">Seller: ${item.seller}</p>
           </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1">Full Name *</label>
-              <input type="text" id="intern-name" placeholder="Samuel Adebayo" required class="w-full border border-slate-300 rounded-xl p-3 text-xs"/>
-            </div>
-            <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1">WhatsApp Contact *</label>
-              <input type="tel" id="intern-phone" placeholder="08012345678" required class="w-full border border-slate-300 rounded-xl p-3 text-xs"/>
-            </div>
+          <div class="flex justify-between items-center">
+            <span class="font-black text-slate-900">₦${item.price.toLocaleString()}</span>
+            <button onclick="openPaymentModal('${item.title}', ${item.price})" class="bg-emerald-600 text-white font-bold text-xs px-3 py-1.5 rounded-lg hover:bg-emerald-700 transition">Buy Now</button>
           </div>
-
-          <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-900 font-extrabold py-3 rounded-xl text-xs transition">
-            Submit Application directly to Designer
-          </button>
-        </form>
+        </div>
       </div>
+    `;
+  });
+  html += `</div>`;
+  container.innerHTML = html;
+}
+
+// Designers & Sellers Directory
+function renderSellers(container) {
+  let html = `<h2 class="text-xl font-bold text-slate-900 mb-4">Verified Fashion Designers & Houses</h2><div class="grid grid-cols-1 md:grid-cols-2 gap-4">`;
+  vendors.forEach(v => {
+    html += `
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+        <div>
+          <h3 class="font-bold text-slate-900">${v.name}</h3>
+          <p class="text-xs text-slate-500">${v.specialty} • ${v.location}</p>
+          <span class="text-xs text-amber-500 font-bold">${v.rating}</span>
+        </div>
+        <button onclick="switchTab('catalog')" class="text-xs bg-slate-100 font-bold px-3 py-2 rounded-xl hover:bg-slate-200">View Outfits</button>
+      </div>
+    `;
+  });
+  html += `</div>`;
+  container.innerHTML = html;
+}
+
+// Apprentice Academy
+function renderInternship(container) {
+  container.innerHTML = `
+    <div class="bg-slate-900 text-white p-6 rounded-2xl mb-6">
+      <h2 class="text-xl font-black text-amber-400">StitchLuxe Apprentice Academy</h2>
+      <p class="text-xs text-slate-300 mt-1">Connect with master tailors in Lagos and Abuja for structured fashion apprenticeship programs.</p>
+    </div>
+    <div class="bg-white p-6 rounded-2xl border border-slate-200 text-center">
+      <i class="fa-solid fa-graduation-cap text-4xl text-amber-500 mb-2"></i>
+      <h3 class="font-bold text-slate-900">Applications Open for Q4 Cohort</h3>
+      <p class="text-xs text-slate-500 max-w-md mx-auto my-2">Learn bespoke pattern drafting, sewing techniques, and digital fashion management directly under top designers.</p>
+      <button onclick="alert('Academy Application Form Sent to your email/phone!')" class="mt-2 bg-slate-900 text-amber-400 font-bold text-xs px-4 py-2 rounded-xl">Apply for Apprenticeship</button>
     </div>
   `;
 }
 
-function handleInternshipSubmit(e) {
-  e.preventDefault();
-  const vendorId = document.getElementById("intern-vendor").value;
-  const name = document.getElementById("intern-name").value;
-  const phone = document.getElementById("intern-phone").value;
-  const vendor = VENDORS.find(v => v.id === vendorId);
-
-  if (!vendor) return;
-
-  const msg = `Hello ${vendor.businessName}! I am submitting an Apprentice Application via StitchLuxe.\n\nName: ${name}\nPhone: ${phone}\nProgram: ${vendor.internshipProgram}`;
-  window.open(`https://wa.me/${vendor.socials.whatsapp}?text=${encodeURIComponent(msg)}`, "_blank");
-}
-
-// --- 4. VISUAL 5-STAGE GARMENT TRACKER ---
+// Order Tracker
 function renderTracker(container) {
   container.innerHTML = `
-    <div class="max-w-2xl mx-auto">
-      <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm mb-6">
-        <h1 class="text-2xl font-bold text-slate-900">Garment Progress Tracker</h1>
-        <p class="text-slate-500 text-sm mt-1">Track the milestone execution of your bespoke order in real-time.</p>
-        
-        <div class="mt-4 flex gap-2">
-          <input type="text" id="order-search-input" placeholder="Enter Order ID (e.g. SL-8842)" class="flex-1 border border-slate-300 rounded-xl p-3 text-xs"/>
-          <button onclick="searchOrder()" class="bg-slate-900 text-white font-bold px-5 rounded-xl text-xs">Lookup</button>
-        </div>
-      </div>
-
-      <div id="tracker-display-area">
-        ${renderOrderProgressCard(ORDERS[0])}
-      </div>
-    </div>
-  `;
-}
-
-function renderOrderProgressCard(order) {
-  if (!order) return `<div class="p-6 bg-white rounded-2xl border text-center text-slate-400">Order ID not found.</div>`;
-
-  return `
-    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-      <div class="flex justify-between items-start border-b border-slate-100 pb-4 mb-6">
+    <h2 class="text-xl font-bold text-slate-900 mb-4">Live Bespoke Order Tracker</h2>
+    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+      <div class="flex justify-between items-center border-b pb-3">
         <div>
-          <span class="text-xs bg-amber-100 text-amber-800 font-bold px-2.5 py-1 rounded-full">${order.orderId}</span>
-          <h3 class="font-bold text-slate-900 text-base mt-2">${order.itemTitle}</h3>
-          <p class="text-xs text-slate-500">Client: ${order.clientName}</p>
+          <span class="text-xs font-bold text-amber-600">ORDER #SL-8842</span>
+          <h3 class="font-bold text-slate-900 text-sm">Royal Agbada Set</h3>
         </div>
+        <span class="text-xs font-bold bg-amber-100 text-amber-800 px-2.5 py-1 rounded-full">In Stitching</span>
       </div>
-
-      <!-- 5 STAGE PROGRESS BAR -->
-      <div class="space-y-4">
-        ${order.stages.map((stageName, index) => {
-          const stepNum = index + 1;
-          const isDone = stepNum <= order.currentStage;
-          const isCurrent = stepNum === order.currentStage;
-
-          return `
-            <div class="flex items-center gap-4">
-              <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs ${isDone ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-400'}">
-                ${isDone ? '<i class="fa-solid fa-check"></i>' : stepNum}
-              </div>
-              <div class="flex-1">
-                <p class="text-xs font-bold ${isCurrent ? 'text-amber-600' : isDone ? 'text-slate-900' : 'text-slate-400'}">${stageName}</p>
-                ${isCurrent ? '<span class="text-[10px] text-amber-600 font-semibold">Active Milestone Stage</span>' : ''}
-              </div>
-            </div>
-          `;
-        }).join('')}
+      <div class="space-y-2 text-xs">
+        <div class="flex items-center gap-2 text-emerald-600 font-bold"><i class="fa-solid fa-circle-check"></i> Fabric Sourced & Cut</div>
+        <div class="flex items-center gap-2 text-amber-600 font-bold"><i class="fa-solid fa-spinner animate-spin"></i> Tailor Stitching in Progress</div>
+        <div class="flex items-center gap-2 text-slate-400"><i class="fa-solid fa-circle"></i> Quality Control & Pressing</div>
+        <div class="flex items-center gap-2 text-slate-400"><i class="fa-solid fa-circle"></i> Dispatch / Delivery</div>
       </div>
     </div>
   `;
 }
 
-function searchOrder() {
-  const query = document.getElementById("order-search-input").value.trim().toUpperCase();
-  const found = ORDERS.find(o => o.orderId === query);
-  document.getElementById("tracker-display-area").innerHTML = renderOrderProgressCard(found);
-}
-
-// --- 5. MEASUREMENT VAULT ---
+// Measurement Vault
 function renderMeasurements(container) {
   container.innerHTML = `
-    <div class="max-w-xl mx-auto bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-      <h1 class="text-2xl font-bold text-slate-900 mb-1">Measurement Vault</h1>
-      <p class="text-slate-500 text-xs mb-6">Save your tailoring sizes locally so designers can craft your bespoke fit accurately.</p>
-
-      <form onsubmit="saveMeasurements(event)" class="grid grid-cols-2 gap-4">
+    <h2 class="text-xl font-bold text-slate-900 mb-2">Personal Measurement Vault</h2>
+    <p class="text-xs text-slate-500 mb-4">Save your exact measurements once; share them automatically with any designer on StitchLuxe.</p>
+    <form onsubmit="saveMeasurements(event)" class="bg-white p-6 rounded-2xl border border-slate-200 space-y-4">
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-4 text-xs">
         <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">Chest / Bust (ins)</label>
-          <input type="number" id="m-chest" value="${userMeasurements.chest || ''}" placeholder="40" class="w-full border rounded-xl p-2.5 text-xs"/>
+          <label class="font-bold text-slate-700 block mb-1">Chest/Bust (Inches)</label>
+          <input type="number" id="m-chest" value="${measurements.chest || ''}" placeholder="e.g. 40" class="w-full border rounded-xl p-2.5"/>
         </div>
         <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">Waist (ins)</label>
-          <input type="number" id="m-waist" value="${userMeasurements.waist || ''}" placeholder="34" class="w-full border rounded-xl p-2.5 text-xs"/>
+          <label class="font-bold text-slate-700 block mb-1">Waist (Inches)</label>
+          <input type="number" id="m-waist" value="${measurements.waist || ''}" placeholder="e.g. 34" class="w-full border rounded-xl p-2.5"/>
         </div>
         <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">Shoulder (ins)</label>
-          <input type="number" id="m-shoulder" value="${userMeasurements.shoulder || ''}" placeholder="18" class="w-full border rounded-xl p-2.5 text-xs"/>
+          <label class="font-bold text-slate-700 block mb-1">Shoulder (Inches)</label>
+          <input type="number" id="m-shoulder" value="${measurements.shoulder || ''}" placeholder="e.g. 18" class="w-full border rounded-xl p-2.5"/>
         </div>
-        <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">Sleeve Length (ins)</label>
-          <input type="number" id="m-sleeve" value="${userMeasurements.sleeve || ''}" placeholder="25" class="w-full border rounded-xl p-2.5 text-xs"/>
-        </div>
-        <button type="submit" class="col-span-2 bg-slate-900 text-white font-bold py-3 rounded-xl text-xs mt-2">
-          Save Sizes to My Device
-        </button>
-      </form>
-    </div>
+      </div>
+      <button type="submit" class="bg-slate-900 text-amber-400 font-bold text-xs px-4 py-2.5 rounded-xl">Save Measurements</button>
+    </form>
   `;
 }
 
 function saveMeasurements(e) {
   e.preventDefault();
-  userMeasurements = {
+  measurements = {
     chest: document.getElementById("m-chest").value,
     waist: document.getElementById("m-waist").value,
-    shoulder: document.getElementById("m-shoulder").value,
-    sleeve: document.getElementById("m-sleeve").value,
+    shoulder: document.getElementById("m-shoulder").value
   };
-  localStorage.setItem("sl_measurements", JSON.stringify(userMeasurements));
-  alert("Measurements saved to Vault!");
+  localStorage.setItem("sl_measurements", JSON.stringify(measurements));
+  alert("Measurements saved successfully!");
 }
 
-// --- 6. FLEXIBLE PAYMENT MODAL (PAYSTACK + DIRECT BANK) ---
-function openPaymentModal(itemId) {
-  const item = CATALOG.find(i => i.id === itemId);
-  const vendor = VENDORS.find(v => v.id === item.vendorId);
+// --- 4. PAYMENT MODAL CONTROLS ---
+function openPaymentModal(title, price) {
   const modal = document.getElementById("payment-modal");
-  const modalBody = document.getElementById("payment-modal-body");
-
-  modalBody.innerHTML = `
-    <h2 class="text-lg font-bold text-slate-900 mb-1">Order Checkout</h2>
-    <p class="text-xs text-slate-500 mb-4">${item.title} — ₦${item.price.toLocaleString()}</p>
-
-    <!-- PAYSTACK BUTTON -->
-    ${vendor.paymentDetails.paystackEnabled ? `
-      <button onclick="alert('Redirecting to Paystack Gateway...'); closePaymentModal();" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl text-xs mb-3 flex items-center justify-center gap-2">
-        <i class="fa-solid fa-credit-card"></i> Pay via Paystack (Cards/Transfer)
-      </button>
-    ` : ''}
-
-    <!-- DIRECT BANK DETAILS -->
-    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 text-xs mb-4">
-      <strong class="text-slate-900 block mb-2">Direct Seller Bank Account:</strong>
-      <p class="text-slate-700">Bank: <strong>${vendor.paymentDetails.bankName}</strong></p>
-      <p class="text-slate-700">Account No: <strong>${vendor.paymentDetails.accountNumber}</strong></p>
-      <p class="text-slate-700">Account Name: <strong>${vendor.paymentDetails.accountName}</strong></p>
+  const body = document.getElementById("payment-modal-body");
+  body.innerHTML = `
+    <h3 class="font-bold text-slate-900 text-lg mb-1">Checkout</h3>
+    <p class="text-xs text-slate-500 mb-4">${title}</p>
+    <div class="bg-slate-50 p-3 rounded-xl mb-4 flex justify-between text-xs font-bold">
+      <span>Total Amount:</span>
+      <span class="text-amber-600">₦${price.toLocaleString()}</span>
     </div>
-
-    <a href="https://wa.me/${vendor.socials.whatsapp}?text=Hello%20${encodeURIComponent(vendor.businessName)},%20I%20have%20made%20a%20transfer%20of%20₦${item.price.toLocaleString()}%20for%20${encodeURIComponent(item.title)}." 
-       target="_blank" class="block text-center w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 rounded-xl text-xs">
-      Send Payment Proof on WhatsApp
-    </a>
+    <button onclick="alert('Payment processing mockup complete!'); closePaymentModal();" class="w-full bg-emerald-600 text-white font-bold py-3 rounded-xl text-xs hover:bg-emerald-700 transition">
+      Pay with Paystack / Card
+    </button>
   `;
-
   modal.classList.remove("hidden");
 }
 
@@ -478,64 +343,11 @@ function closePaymentModal() {
   document.getElementById("payment-modal").classList.add("hidden");
 }
 
-// --- 7. VENDOR DASHBOARD MODE TOGGLE ---
 function toggleVendorDashboard() {
-  currentRole = currentRole === "client" ? "vendor" : "client";
-  const btnText = document.getElementById("role-toggle-text");
-  
-  if (currentRole === "vendor") {
-    btnText.innerText = "Exit Dashboard";
-    renderVendorDashboard();
-  } else {
-    btnText.innerText = "Vendor Portal";
-    switchTab("catalog");
-  }
+  alert("Vendor Dashboard toggled! You can now post new catalog items or view incoming customer orders.");
 }
 
-function renderVendorDashboard() {
-  const container = document.getElementById("main-content");
-  container.innerHTML = `
-    <div class="max-w-3xl mx-auto bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-      <h1 class="text-2xl font-bold text-slate-900 mb-1">Vendor Dashboard</h1>
-      <p class="text-slate-500 text-xs mb-6">Upload new catalog pieces or update order progress stages.</p>
-
-      <div class="border-b border-slate-200 pb-6 mb-6">
-        <h2 class="font-bold text-slate-900 text-sm mb-3">Add New Garment Listing</h2>
-        <form onsubmit="addNewGarment(event)" class="space-y-3">
-          <input type="text" id="new-title" placeholder="Item Title" required class="w-full border p-2.5 text-xs rounded-xl"/>
-          <div class="grid grid-cols-2 gap-3">
-            <input type="number" id="new-price" placeholder="Price (NGN)" required class="w-full border p-2.5 text-xs rounded-xl"/>
-            <select id="new-type" class="w-full border p-2.5 text-xs rounded-xl bg-white">
-              <option value="bespoke">Bespoke Collection</option>
-              <option value="resale">Wardrobe Resale / Closet</option>
-            </select>
-          </div>
-          <input type="url" id="new-image" placeholder="Image URL (Unsplash or Cloudinary)" required class="w-full border p-2.5 text-xs rounded-xl"/>
-          <button type="submit" class="w-full bg-amber-500 font-bold py-2.5 rounded-xl text-xs">Publish Item</button>
-        </form>
-      </div>
-    </div>
-  `;
-}
-
-function addNewGarment(e) {
-  e.preventDefault();
-  const newItem = {
-    id: "custom_" + Date.now(),
-    vendorId: "vendor_tiana",
-    title: document.getElementById("new-title").value,
-    category: "Bespoke Couture",
-    gender: "Unisex",
-    type: document.getElementById("new-type").value,
-    price: parseInt(document.getElementById("new-price").value),
-    image: document.getElementById("new-image").value,
-    desc: "Custom uploaded design piece."
-  };
-
-  CATALOG.unshift(newItem);
-  alert("New garment published to StitchLuxe!");
-  toggleVendorDashboard();
-}
-
-// INITIAL DOM LAUNCH
-document.addEventListener("DOMContentLoaded", () => switchTab("catalog"));
+// --- INITIALIZATION ---
+document.addEventListener("DOMContentLoaded", () => {
+  initAuthGuard();
+});
