@@ -4,7 +4,7 @@
 
 // Initialize Supabase Client
 const SUPABASE_URL = "https://chtptlxjtywzmdxbajwd.supabase.co";
-const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY"; // Replace with your anon key from Supabase Settings -> API
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNodHB0bHhqdHl3em1keGJhandkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcxNzM0MDIsImV4cCI6MjEwMjc0OTQwMn0.AiKT4nadvpaz7GOCHDc4lGGbpJ74dmWm2W7L_fX23nc "; // Replace with your anon key from Supabase Settings -> API
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let currentUser = null;
@@ -122,7 +122,7 @@ async function renderWorkspaceOffers() {
 // --- 3. PAYSTACK INLINE INTEGRATION ---
 function payWithPaystack(itemId, vendorId, amount) {
   const handler = PaystackPop.setup({
-    key: 'pk_test_xxxxxxxxxxxxxxxxxxxxxxxx', // Replace with your Public Paystack Key
+    key: 'pk_test_5798f947c6392dc53106ee1261745880e6c0737c', // Replace with your Public Paystack Key
     email: currentUser.email,
     amount: amount * 100, // Paystack operates in Kobo
     currency: 'NGN',
