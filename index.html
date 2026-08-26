@@ -2,89 +2,96 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>StitchLuxe</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>StitchLuxe — Bespoke Fashion Ecosystem</title>
+  
+  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  
+  <!-- FontAwesome Icons -->
+  <link 
+    rel="stylesheet" 
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" 
+  />
 
-  <!-- SUPABASE & PAYSTACK LIBRARIES -->
+  <!-- Supabase JS Client CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://js.paystack.co/v1/inline.js"></script>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen font-sans antialiased">
+<body class="bg-slate-50 text-slate-800 min-h-screen font-sans antialiased">
 
-  <!-- ==================================================== -->
-  <!-- ISOLATED LOGIN & SIGNUP SCREEN (ONLY THING ON LOAD)  -->
-  <!-- ==================================================== -->
-  <div id="auth-screen" class="min-h-screen flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-800 max-w-sm w-full rounded-3xl p-8 shadow-2xl text-center">
-      
-      <!-- LOGO -->
-      <div class="inline-flex items-center justify-center bg-amber-500 text-slate-950 font-black text-3xl w-16 h-16 rounded-2xl mb-4 shadow-lg shadow-amber-500/10">
-        SL
-      </div>
-      <h1 class="text-3xl font-black tracking-tight text-white">StitchLuxe</h1>
-      <p class="text-xs text-slate-400 mt-1 mb-6">Bespoke & Wardrobe Ecosystem</p>
-
-      <!-- AUTH FORM -->
-      <form id="auth-form" onsubmit="handleAuthSubmit(event)" class="space-y-3 text-left">
-        <div id="fullname-group" class="hidden">
-          <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Full Name</label>
-          <input type="text" id="auth-fullname" placeholder="John Doe" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-amber-500"/>
-        </div>
-
-        <div>
-          <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Email Address</label>
-          <input type="email" id="auth-contact" placeholder="user@gmail.com" required class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-amber-500"/>
-        </div>
-
-        <div>
-          <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Password</label>
-          <input type="password" id="auth-password" placeholder="••••••••" required class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-amber-500"/>
-        </div>
-
-        <button type="submit" id="auth-submit-btn" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-3.5 rounded-xl text-xs transition shadow-lg mt-2">
-          Sign In
-        </button>
-      </form>
-
-      <!-- TOGGLE -->
-      <div class="mt-6 pt-4 border-t border-slate-800/80 text-xs text-slate-400 flex justify-between items-center">
-        <span id="toggle-text">Need an account?</span>
-        <button type="button" onclick="toggleAuthMode()" id="toggle-btn" class="text-amber-400 font-bold hover:underline">
-          Create Account
-        </button>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- ==================================================== -->
-  <!-- MAIN APP WORKSPACE (HARD-HIDDEN INITIALLY)           -->
-  <!-- ==================================================== -->
-  <div id="app-workspace" style="display: none !important;" class="bg-slate-50 text-slate-900 min-h-screen pb-20">
-    <header class="bg-slate-900 text-white px-4 py-3 flex justify-between items-center">
+  <!-- TOP HEADER / BRAND BAR -->
+  <header class="bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-50">
+    <div class="max-w-5xl mx-auto px-4 py-3.5 flex justify-between items-center">
       <div class="flex items-center gap-2">
-        <div class="bg-amber-500 text-slate-950 font-bold text-sm px-2 py-0.5 rounded">SL</div>
-        <span class="font-bold text-lg">StitchLuxe Workspace</span>
+        <span class="text-amber-400 font-black text-xl tracking-tight">STITCH<span class="text-white">LUXE</span></span>
+        <span class="text-[10px] bg-amber-400/10 text-amber-400 font-bold px-2 py-0.5 rounded border border-amber-400/20">BESPOKE</span>
       </div>
-      <button onclick="logoutUser()" class="text-xs bg-slate-800 text-slate-300 px-3 py-1.5 rounded-lg hover:text-white">
-        Log Out
+      <div id="user-profile-badge" class="text-xs text-slate-400 font-medium">
+        <!-- Managed by app.js authentication -->
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN APP CONTAINER -->
+  <main class="max-w-5xl mx-auto px-4 py-6">
+
+    <!-- ==========================================
+         STITCHLUXE FEATURE NAVIGATION MENU BAR
+         ========================================== -->
+    <nav class="flex items-center gap-2 overflow-x-auto pb-3 mb-6 border-b border-slate-200 scrollbar-none">
+      
+      <!-- 1. Catalog Tab -->
+      <button 
+        id="tab-catalog" 
+        onclick="loadTabContent('catalog')" 
+        class="px-4 py-2 rounded-xl bg-slate-900 text-amber-400 font-bold text-xs whitespace-nowrap transition-all shadow-sm">
+        <i class="fa-solid fa-store mr-1.5"></i> Bespoke Catalog
       </button>
-    </header>
+      
+      <!-- 2. Bespoke Orders & Garment Tracker Tab -->
+      <button 
+        id="tab-orders" 
+        onclick="loadTabContent('orders')" 
+        class="px-4 py-2 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 font-bold text-xs whitespace-nowrap transition-all">
+        <i class="fa-solid fa-scissors mr-1.5"></i> Bespoke Orders
+      </button>
+      
+      <!-- 3. Wardrobe Resale Storefront Tab -->
+      <button 
+        id="tab-resale" 
+        onclick="loadTabContent('resale')" 
+        class="px-4 py-2 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 font-bold text-xs whitespace-nowrap transition-all">
+        <i class="fa-solid fa-shirt mr-1.5"></i> Wardrobe Resale
+      </button>
+      
+      <!-- 4. Apprentice & Talent Portal Tab -->
+      <button 
+        id="tab-apprentice" 
+        onclick="loadTabContent('apprentice')" 
+        class="px-4 py-2 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 font-bold text-xs whitespace-nowrap transition-all">
+        <i class="fa-solid fa-user-graduate mr-1.5"></i> Apprentice Portal
+      </button>
+      
+    </nav>
 
-    <main id="main-content" class="max-w-5xl mx-auto px-4 pt-6">
-      <!-- Workspace content loads here AFTER successful login -->
-    </main>
-  </div>
+    <!-- ==========================================
+         DYNAMIC VIEWPORT CONTAINER
+         ========================================== -->
+    <div id="module-viewport" class="min-h-[400px]">
+      <!-- loadTabContent() injects views here dynamically -->
+    </div>
 
-  <script src=" <!-- Feature Modules -->
+  </main>
+
+  <!-- ==========================================
+       SCRIPT LOADING ORDER (CRITICAL)
+       ========================================== -->
+  <!-- 1. Feature modules load first -->
   <script src="orders.js"></script>
   <script src="resale.js"></script>
   <script src="apprentice.js"></script>
 
-  <!-- Main Engine (loads last) -->
+  <!-- 2. Main engine script loads last -->
   <script src="app.js"></script>
-</body>"></script>
 </body>
 </html>
