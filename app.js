@@ -3,9 +3,9 @@
    ========================================== */
 
 // SUPABASE CONFIGURATION
-const SUPABASE_URL = "https://chtptlxjtywzmdxbajwd.supabase.co";
+const SUPABASE_URL = "https://chtptlxjtywzmdxbajwd.supabase.co ";
 // Double check that this key is your exact anon key from Supabase Project Settings -> API
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNodHB0bHhqdHl3em1keGJhandkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcxNzM0MDIsImV4cCI6MjEwMjc0OTQwMn0.AiKT4nadvpaz7GOCHDc4lGGbpJ74dmWm2W7L_fX23nc "; 
+const SUPABASE_ANON_KEY = " eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNodHB0bHhqdHl3em1keGJhandkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcxNzM0MDIsImV4cCI6MjEwMjc0OTQwMn0.AiKT4nadvpaz7GOCHDc4lGGbpJ74dmWm2W7L_fX23nc"; 
 
 let supabaseClient = null;
 
